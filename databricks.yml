@@ -16,27 +16,38 @@ variables:
     description: Landing volume name
     default: landing
 
+  environment:
+    description: Deployment environment
+
 targets:
+
   dev:
     mode: development
     default: true
+
     variables:
       catalog: telematics
       schema: dev
       landing_volume: landing
+      environment: dev
 
   test:
     mode: development
+
     variables:
       catalog: telematics
       schema: test
       landing_volume: landing
+      environment: test
 
   prod:
     mode: production
+
     workspace:
       root_path: /Workspace/Users/orsondc@gmail.com/.bundle/${bundle.name}/${bundle.target}
+
     variables:
       catalog: telematics
       schema: prod
       landing_volume: landing
+      environment: prod
