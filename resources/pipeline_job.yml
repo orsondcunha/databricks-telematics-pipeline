@@ -19,6 +19,25 @@ resources:
 
           environment_key: default
 
+
+        - task_key: silver_processing
+
+          depends_on:
+            - task_key: bronze_ingestion
+
+          spark_python_task:
+            python_file: ../src/silver/silver_processing.py
+            parameters:
+              - --catalog
+              - ${var.catalog}
+              - --schema
+              - ${var.schema}
+              - --landing_volume
+              - ${var.landing_volume}
+
+          environment_key: default
+
+
       environments:
         - environment_key: default
           spec:
