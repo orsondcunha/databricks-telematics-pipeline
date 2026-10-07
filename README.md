@@ -168,6 +168,7 @@ databricks bundle validate -t prod
 ```bash
 databricks bundle deploy -t dev
 databricks bundle run setup_infrastructure -t dev
+databricks bundle run schema_migrations -t dev
 databricks bundle run telematics_pipeline -t dev
 ```
 
@@ -176,6 +177,7 @@ databricks bundle run telematics_pipeline -t dev
 ```bash
 databricks bundle deploy -t test
 databricks bundle run setup_infrastructure -t test
+databricks bundle run schema_migrations -t test
 databricks bundle run telematics_pipeline -t test
 ```
 
@@ -184,6 +186,7 @@ databricks bundle run telematics_pipeline -t test
 ```bash
 databricks bundle deploy -t prod
 databricks bundle run setup_infrastructure -t prod
+databricks bundle run schema_migrations -t prod
 databricks bundle run telematics_pipeline -t prod
 ```
 
@@ -205,52 +208,4 @@ position_updated_at TIMESTAMP
 
 to the Gold table.
 
-The migration first checks whether the column already exists before adding it, so it can safely be rerun.
-
-I promoted the change through the same bundle:
-
-```text
-dev -> test -> prod
-```
-
-For example:
-
-```bash
-databricks bundle deploy -t dev
-databricks bundle run schema_migrations -t dev
-```
-
-The same process is then repeated for test and prod.
-
-This keeps the schema change in source control and avoids manually changing the production table.
-
-## Validation
-
-The `tests/validate_pipeline.sql` file contains the SQL queries I used to validate the pipeline.
-
-The main checks are:
-
-- Bronze receives the raw GPS events
-- invalid GPS coordinates do not reach Silver
-- duplicate GPS events do not exist in Silver
-- Gold contains only one current record per truck
-- Gold contains the latest Silver event for each truck
-- Gold truck details match the static reference table
-- rerunning the pipeline without new files does not create additional records
-
-## Scaling
-
-This implementation is intentionally small for the take-home, but I would keep the same overall Bronze/Silver/Gold design for a larger fleet.
-
-For something closer to 100,000 trucks, I would mainly look at:
-
-- serverless compute sizing
-- streaming trigger frequency
-- input file sizes
-- Delta table layout/clustering
-- streaming lag and throughput
-- data-quality monitoring
-
-I would also want the source system to provide a unique `event_id` for each GPS ping instead of relying on `truck_id + event_ts` for deduplication.
-
-For production support I would add monitoring around pipeline failures, processing lag, rejected records, throughput, and data-quality metrics.
+The migration first checks whether the column already exists before adding it, so it
