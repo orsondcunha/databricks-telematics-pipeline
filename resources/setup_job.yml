@@ -5,10 +5,8 @@ resources:
 
       tasks:
         - task_key: setup_infrastructure
-
           spark_python_task:
             python_file: ../src/setup/setup_infrastructure.py
-
             parameters:
               - --catalog
               - ${var.catalog}
@@ -16,7 +14,36 @@ resources:
               - ${var.schema}
               - --landing_volume
               - ${var.landing_volume}
+          environment_key: default
 
+        - task_key: seed_truck_details
+          depends_on:
+            - task_key: setup_infrastructure
+          spark_python_task:
+            python_file: ../src/generators/seed_truck_details.py
+            parameters:
+              - --catalog
+              - ${var.catalog}
+              - --schema
+              - ${var.schema}
+          environment_key: default
+
+        - task_key: generate_pings
+          depends_on:
+            - task_key: setup_infrastructure
+          spark_python_task:
+            python_file: ../src/generators/generate_pings.py
+            parameters:
+              - --catalog
+              - ${var.catalog}
+              - --schema
+              - ${var.schema}
+              - --landing_volume
+              - ${var.landing_volume}
+              - --num_batches
+              - "10"
+              - --sleep_seconds
+              - "1"
           environment_key: default
 
       environments:
