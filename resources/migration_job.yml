@@ -1,0 +1,20 @@
+resources:
+  jobs:
+    schema_migrations:
+      name: telematics-schema-migrations-${bundle.target}
+
+      tasks:
+        - task_key: migration_001
+          spark_python_task:
+            python_file: ../src/migrations/001_add_position_updated_at.py
+            parameters:
+              - --catalog
+              - ${var.catalog}
+              - --schema
+              - ${var.schema}
+          environment_key: default
+
+      environments:
+        - environment_key: default
+          spec:
+            environment_version: "5"
