@@ -2,7 +2,7 @@ import argparse
 
 from delta.tables import DeltaTable
 from pyspark.sql import SparkSession
-from pyspark.sql.functions import col, row_number
+from pyspark.sql.functions import col, current_timestamp, row_number
 from pyspark.sql.window import Window
 
 
@@ -126,14 +126,10 @@ def merge_current_positions(batch_df, batch_id):
 
     latest_batch = (
         batch_df
-        .withColumn(
-            "_row_number",
-            row_number().over(latest_window)
-        )
-        .filter(
-            col("_row_number") == 1
-        )
+        .withColumn("_row_number", row_number().over(latest_window))
+        .filter(col("_row_number") == 1)
         .drop("_row_number")
+        .withColumn("position_updated_at", current_timestamp())
     )
 
     print(
@@ -167,7 +163,8 @@ def merge_current_positions(batch_df, batch_id):
                 "capacity_lbs": "source.capacity_lbs",
                 "home_depot": "source.home_depot",
                 "region": "source.region",
-                "driver": "source.driver"
+                "driver": "source.driver",
+                "position_updated_at": "source.position_updated_at"
             }
         )
 
