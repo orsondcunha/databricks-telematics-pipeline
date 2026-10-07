@@ -1,0 +1,25 @@
+resources:
+  jobs:
+    setup_infrastructure:
+      name: telematics-setup-${bundle.target}
+
+      tasks:
+        - task_key: setup_infrastructure
+
+          spark_python_task:
+            python_file: ../src/setup/setup_infrastructure.py
+
+            parameters:
+              - --catalog
+              - ${var.catalog}
+              - --schema
+              - ${var.schema}
+              - --landing_volume
+              - ${var.landing_volume}
+
+          environment_key: default
+
+      environments:
+        - environment_key: default
+          spec:
+            environment_version: "5"

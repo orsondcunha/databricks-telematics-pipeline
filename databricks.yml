@@ -1,6 +1,9 @@
 bundle:
   name: databricks-telematics-pipeline
 
+include:
+  - resources/*.yml
+
 variables:
   catalog:
     description: Unity Catalog catalog
